@@ -52,6 +52,12 @@ def dumpyara(file: Path, output_path: Path, debug: bool = False):
 			"\n".join([str(file) for file in files_list]) + "\n"
 		)
 
+		# Copy super_partition_size.txt
+		LOGI("Copying super_partition_size.txt")
+		(output_path / "super_partition_size.txt").write_text(
+			(raw_images_path / "super_partition_size.txt").read_text()
+		)
+
 		return output_path
 	finally:
 		if not debug:
