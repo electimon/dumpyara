@@ -14,7 +14,6 @@ from sebaubuntu_libs.libexception import format_exception
 from sebaubuntu_libs.liblogging import LOGE, LOGI
 from shutil import copyfile
 from subprocess import CalledProcessError
-import magic
 
 from dumpyara.lib.libsevenz import sevenz
 from dumpyara.lib.liberofs import erofs
@@ -46,16 +45,14 @@ def step_3(raw_images_path: Path, output_path: Path):
 				LOGE(f"Failed to extract {image_path.name}")
 				LOGE(f"{format_exception(e)}")
 		elif partition_type == FILESYSTEM:
-			m = magic.Magic()
-			mime = m.from_file(image_path)
 			try:
-				if mime.split()[0] == "EROFS":
-						erofs(f'--extract="{output_path / partition}" {image_path}')
-				else:
-						sevenz(f'x {image_path} -y -o"{output_path / partition}"/')
+				sevenz(f'x {image_path} -y -o"{output_path / partition}"/')
 			except CalledProcessError as e:
-				LOGE(f"Error extracting {image_path.name}")
-				LOGE(f"{e.output.decode('UTF-8', errors='ignore')}")
+				try:
+					erofs(f'--extract="{output_path / partition}" {image_path}')
+				except CalledProcessError as e:
+					LOGE(f"Error extracting {image_path.name}")
+					LOGE(f"{e.output.decode('UTF-8', errors='ignore')}")
 
 		if partition_type in (RAW, BOOTIMAGE):
 			copyfile(image_path, output_path / f"{partition}.img", follow_symlinks=True)
