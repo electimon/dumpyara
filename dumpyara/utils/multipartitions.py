@@ -17,6 +17,9 @@ def extract_payload(image: Path, output_dir: Path):
 	extract_android_ota_payload(image, output_dir)
 
 def extract_super(image: Path, output_dir: Path):
+	if "_empty" in str(image):
+		LOGI("Ignoring super_empty.img")
+		return
 	unsparsed_super = output_dir / "super.unsparsed.img"
 
 	try:
